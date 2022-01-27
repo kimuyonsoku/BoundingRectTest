@@ -2,16 +2,21 @@ import UIKit
 
 class ViewController: UIViewController {
     
-    @IBOutlet var label: UILabel!
-
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
     }
     
     @IBAction func tapButton() {
-        let test = NSAttributedString(string: testString)
-        _ = textViewHeight(width: self.view.bounds.width, height: CGFloat.greatestFiniteMagnitude, attributeText: test)
+        let attributeText = NSAttributedString(string: testString)
+
+        _ = textViewHeight(width: self.view.bounds.width,
+                           height: CGFloat.greatestFiniteMagnitude,
+                           attributeText: attributeText)
+        
+        _ = textViewHeight2(width: self.view.bounds.width,
+                           height: CGFloat.greatestFiniteMagnitude,
+                           attributeText: attributeText)
     }
 
     // NOTE: Compare iOS 15.2 with iOS 15.1 or lower versions.
@@ -21,13 +26,33 @@ class ViewController: UIViewController {
             with: CGSize(width: width, height: height),
             options: [.usesLineFragmentOrigin, ],
             context: nil).height)
-        let computationTime = floor((time.timeIntervalSinceNow * -1) / 10 * 1000) / 1000
-        print("Result height: \(result)  Computation time: \(computationTime) seconds")
-        label.text = "Computation time: \(computationTime) seconds"
+        time.logCalcTime()
+        return result
+    }
+    
+    private func textViewHeight2(width: CGFloat, height: CGFloat, attributeText: NSAttributedString) -> CGFloat {
+        let time = Date()
+        let layoutManager = NSLayoutManager()
+        let textContainer = NSTextContainer(size: CGSize(width: width, height: height))
+        let textStorage = NSTextStorage(attributedString: attributeText)
+        layoutManager.addTextContainer(textContainer)
+        textStorage.addLayoutManager(layoutManager)
+        textContainer.lineFragmentPadding = 0.0
+        let result = ceil(layoutManager.usedRect(for: textContainer).height)
+        time.logCalcTime()
         return result
     }
 }
 
+extension Date {
+    fileprivate func logCalcTime() {
+        print("calc time: \(calcTime())s")
+    }
+    
+    private func calcTime() -> TimeInterval {
+        return floor((timeIntervalSinceNow * -1) / 10 * 1000) / 1000 * 10
+    }
+}
 /// 700 lines
 private let testString = """
 あ
